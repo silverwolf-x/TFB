@@ -1,3 +1,90 @@
+# Tips
+## 使用
+1. 在[release](https://github.com/silverwolf-x/TFB/releases)下载dataset，放在./dataset/forecasting下，避免报错
+2. 用convent.py转换格式，并自动放到dataset/forcasting下
+3. 使用python3.10安装requirements.txt，注意torch要cuda版本
+4. 在scripts的univariate-forecast.sh挑一个来粗糙运行所有模型，最后加上要运行的文件，如`--data-name-list "c_log_trend.csv"`
+
+```shell
+python ./scripts/run_benchmark.py \
+    --config-path "fixed_forecast_config_daily.json" \
+    --model-name \
+        "time_series_library.Triformer" \
+        "time_series_library.PatchTST" \
+        "time_series_library.Nonstationary_Transformer" \
+        "time_series_library.Informer" \
+        "time_series_library.TimesNet" \
+        "time_series_library.FEDformer" \
+        "time_series_library.NLinear" \
+        "time_series_library.Linear" \
+        "time_series_library.DLinear" \
+        "time_series_library.FiLM" \
+        "time_series_library.MICN" \
+        "time_series_library.Crossformer" \
+    --model-hyper-params \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"patch_len":8,"stride":4}' \
+        '{"p_hidden_layers":2,"p_hidden_dims":[256,256],"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"d_model":16,"d_ff":16,"factor":3}' \
+        '{"n_epochs":5,"batch_size":16,"optimizer_kwargs":{"lr":1e-3}}' \
+        '{"n_epochs":5,"batch_size":16,"optimizer_kwargs":{"lr":1e-3}}' \
+        '{"n_epochs":5,"batch_size":16,"optimizer_kwargs":{"lr":1e-3}}' \
+    --adapter \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+        "transformer_adapter" \
+    --save-path "daily" \
+    --gpus 0 \
+    --num-workers 1 \
+    --timeout 60000 \
+    --data-name-list "c_log_trend.csv"
+
+```
+5. 使用git bash运行上述shell
+
+## 预测画图
+
+https://tfb-docs.readthedocs.io/en/latest/tutorial/steps_to_get_predict_and_actual_data.html
+
+
+```python
+import base64
+import pickle
+import pandas as pd
+def decode_data(filepath: str) -> pd.DataFrame:
+    """
+    Load the result file, decode base64-encoded inference and actual data columns.
+
+    :param filepath: The path to the result data.
+    :return: The decoded data.
+    """
+    data = pd.read_csv(filepath)
+    for index, row in data.iterrows():
+        decoded_inference_data = base64.b64decode(row["inference_data"])
+        decoded_actual_data = base64.b64decode(row["actual_data"])
+        data.at[index, "inference_data"] = pickle.loads(decoded_inference_data)
+        data.at[index, "actual_data"] = pickle.loads(decoded_actual_data)
+    return data
+```
+---
+---
+
 <div align="center">
 <img alt="Logo" src="docs/figures/TFB-LOGO.png" width="80%"/>
 </div>
