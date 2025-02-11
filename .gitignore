@@ -1,7 +1,10 @@
 dataset/
+!dataset/forecasting/
+!dataset/forecasting/FORECAST_META.csv
 result/
 .idea/
 .vscode/
 .git
 *.DS_Store
 venv/
+__pycache__/
